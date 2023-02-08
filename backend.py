@@ -47,7 +47,6 @@ def search(team):
         conn.commit()
         conn.close()
         rows = sorted(rows, key=lambda x:x[0])
-        print(rows)
         return rows
     except Exception:
         return []
@@ -73,8 +72,8 @@ def convert_base(num, base, length):
 def parse(csv_line):
     data = csv_line.split(",")
     initials = data[0]
-    match = int(data[1])
-    team = int(data[2])
+    match = data[1]
+    team = data[2]
     if unique(team, match):
         add_scout(initials, match, team)
         part1 = convert_base(data[7], 5, 9)

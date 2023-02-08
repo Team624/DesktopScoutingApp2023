@@ -1,10 +1,10 @@
-from base64 import b64encode
-import base64
-from io import BytesIO
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
-import PIL.Image
+from base64 import b64encode
+from io import BytesIO
 import seaborn as sns
+import PIL.Image
+import base64
 import os
 
 def get_radar(json_data, categories):

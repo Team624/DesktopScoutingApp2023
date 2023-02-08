@@ -18,7 +18,3 @@ def add_scout(name, match, team):
         json.dump(data, f)
 
 create()
-
-add_scout("Teymur", "1", "624")
-add_scout("Arnav", "2", "624")
-add_scout("Teymur", "2", "1477")

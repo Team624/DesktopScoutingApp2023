@@ -183,7 +183,7 @@ class Match:
         }
         return data
     
-    def get_cargo_specific_map(self, cargo):
+    def get_cargo_specific_count(self, cargo):
         cones = {
             "auton": {
                 "L": [
@@ -268,7 +268,6 @@ class Match:
                     self.auto_cube_H8
                 ].count(1)
             },
-
             "teleop": {
                 "L": [
                     self.teleop_hybrid_L1,
@@ -297,5 +296,20 @@ class Match:
             return cubes
         else:
             return cones
+
+    def get_cargo_general_count(self):
+        cones = self.get_cargo_specific_count("cones")
+        cubes = self.get_cargo_specific_count("cubes")
+        output = {
+            "auton":{},
+            "teleop":{}
+        }
+        for period in output.keys():
+            for level in ["L", "M", "H"]:
+                output[period][level] = cones[period][level]+cubes[period][level]
+        return output
+
+
+
 
 

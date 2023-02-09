@@ -297,18 +297,6 @@ class Match:
         else:
             return cones
 
-    def get_cargo_general_count(self):
-        cones = self.get_cargo_specific_count("cones")
-        cubes = self.get_cargo_specific_count("cubes")
-        output = {
-            "auton":{},
-            "teleop":{}
-        }
-        for period in output.keys():
-            for level in ["L", "M", "H"]:
-                output[period][level] = cones[period][level]+cubes[period][level]
-        return output
-
 
 
 

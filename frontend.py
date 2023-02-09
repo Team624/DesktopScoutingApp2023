@@ -3,9 +3,13 @@ import backend
 import cv2 
 import numpy as np
 from pyzbar.pyzbar import decode
-from PIL import Image, ImageTk
-import graphing
+from utils import *
+from analyst import analytics
+import json
 
+config_file = json.load(open('assets/config.json'))
+types = config_file["types"]
+var_nums = len(types)
 window = Tk()
 window.wm_title("Scouting Unlimited")
 counterController=StringVar()
@@ -52,12 +56,16 @@ def count():
     except Exception:
         pass
 
-def change_image():
-    new_image = None #image goes here
-    img2 = ImageTk.PhotoImage(new_image)
-    label.configure(image=img2)
-    label.image=img2
-
+# def change_image():
+#     try:
+#         new_image = graphing.get_graph(["624"])
+#         img2 = ImageTk.PhotoImage(new_image)
+#         label.configure(image=img2)
+#         label.image=img2
+#     except:
+#         img2 = ImageTk.PhotoImage(Image.open("assets/dont_let_him_cool.png"))
+#         label.configure(image=img2)
+#         label.image=img2
 
 cvButton=Button(window, text="Scan", width=12, command=scan)
 cvButton.grid(row=0, column=0)
@@ -65,37 +73,88 @@ switchCamera=Button(window, text="Switch Camera", width=12, command=switch)
 switchCamera.grid(row=1, column=0)
 dataCounterEntry=Entry(window, textvariable=counterController, width=12)
 dataCounterEntry.grid(row=0, column=6)
-CounterButton=Button(window, text="Count", width=12, command=change_image)
+CounterButton=Button(window, text="Count", width=12)
 CounterButton.grid(row=1, column=6)
 
 teamController1 = StringVar()
 newDataEntry1=Entry(window, textvariable=teamController1)
 newDataEntry1.grid(row=2, column=1)
+b1=Button(window, text="Update", width=12, command= lambda: update(0))
+b1.grid(row=3, column=1)
 
 teamController2 = StringVar()
-newDataEntry2=Entry(window, textvariable=teamController1)
+newDataEntry2=Entry(window, textvariable=teamController2)
 newDataEntry2.grid(row=2, column=2)
+b2=Button(window, text="Update", width=12, command= lambda: update(1))
+b2.grid(row=3, column=2)
 
 teamController3 = StringVar()
-newDataEntry3=Entry(window, textvariable=teamController1)
+newDataEntry3=Entry(window, textvariable=teamController3)
 newDataEntry3.grid(row=2, column=3)
+b3=Button(window, text="Update", width=12, command= lambda: update(2))
+b3.grid(row=3, column=3)
 
 teamController4 = StringVar()
-newDataEntry4=Entry(window, textvariable=teamController1)
+newDataEntry4=Entry(window, textvariable=teamController4)
 newDataEntry4.grid(row=2, column=4)
+b4=Button(window, text="Update", width=12, command= lambda: update(3))
+b4.grid(row=3, column=4)
 
 teamController5 = StringVar()
-newDataEntry5=Entry(window, textvariable=teamController1)
+newDataEntry5=Entry(window, textvariable=teamController5)
 newDataEntry5.grid(row=2, column=5)
+b5=Button(window, text="Update", width=12, command= lambda: update(4))
+b5.grid(row=3, column=5)
 
 teamController6 = StringVar()
-newDataEntry6=Entry(window, textvariable=teamController1)
+newDataEntry6=Entry(window, textvariable=teamController6)
 newDataEntry6.grid(row=2, column=6)
+b6=Button(window, text="Update", width=12, command= lambda: update(5))
+b6.grid(row=3, column=6)
 
-default_pic= ImageTk.PhotoImage(Image.open("assets/624.png"))
-label= Label(window,image= default_pic)
+dataEntries = [
+    newDataEntry1,
+    newDataEntry2,
+    newDataEntry3,
+    newDataEntry4,
+    newDataEntry5,
+    newDataEntry6
+]
 
-label.grid(row=3, column=0)
+buttons = [
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+]
+for i in range(0, 6):
+    for b in range(0, var_nums):
+        defaultLabel=Entry(window, text="", fg='blue')
+        defaultLabel.grid(row=5+b, column=i+1)
+        buttons[i].append(defaultLabel)
+
+for i in range(0, len(types)):
+    newLabel = Label(window, text=types[i].replace("_", " "), width=18)
+    newLabel.grid(row=5+i, column=0)
+
+def update(index):
+    team = dataEntries[index].get()
+    analyst = analytics(team)
+    data = [
+        analyst.get_list_cargo_general("L", "auton"),
+        analyst.get_list_cargo_general("M", "auton"),
+        analyst.get_list_cargo_general("H", "auton"),
+        analyst.get_list_cargo_general("L", "teleop"),
+        analyst.get_list_cargo_general("M", "teleop"),
+        analyst.get_list_cargo_general("H", "teleop"),
+    ]
+    for i in range(0, var_nums):
+        average = round(get_average(data[i]),2)
+        text = str(average)
+        buttons[index][i].delete(0,END)
+        buttons[index][i].insert(0, text)
 
 
 window.mainloop()

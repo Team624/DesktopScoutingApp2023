@@ -4,6 +4,12 @@ class analytics:
 
     def __init__(self, teamNumber):
         self.data = [Match(indiv_data) for indiv_data in backend.search(teamNumber)]
+    
+    def not_empty(self):
+        return len(self.data)>0
+    
+    def get_data(self):
+        return self.data
 
     def get_list_cargo_general(self, level, period):
         progression = []

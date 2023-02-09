@@ -181,5 +181,14 @@
         "FFFF3800",
         "FFFF3300",
         "FFFF2D00"
+    ],
+    "types":
+    [
+        "L_auton",
+        "M_auton",
+        "H_auton",
+        "L_teleop",
+        "M_teleop",
+        "H_teleop"
     ]
 }

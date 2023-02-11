@@ -1,5 +1,6 @@
 import backend
 from basic import Match
+
 class analytics:
 
     def __init__(self, teamNumber):
@@ -33,6 +34,17 @@ class analytics:
             triple.append(match.triple_balance)
         return auton, endgame, triple
     
+    def format_charge(self, period):
+        auton, endgame, _ = self.get_charging_station()
+        if period=="auton":
+            docked =auton.count(1)
+            engaged = auton.count(2)
+            return docked, engaged, len(auton)
+        else:
+            docked =endgame.count(2)
+            engaged = auton.count(3)
+            return docked, engaged, len(endgame)
+ 
     def triple_success_rate(self):
         _, endgame, triple = self.get_charging_station()
         engaged, attempted = 0, 0
@@ -45,6 +57,30 @@ class analytics:
             return 0
         else:
             return engaged/attempted
+    
+    def get_point_progression(self):
+        output = []
+        for match in self.data:
+            mobility = match.mobility_points()
+            auton_cargo = match.auton_cargo()
+            teleop_cargo = match.teleop_cargo()
+            auton_charge, endgame_charge = match.changing_station_points()
+            output.append(
+                {
+                    "auton": mobility+auton_cargo+auton_charge,
+                    "teleop": teleop_cargo,
+                    "endgame": endgame_charge
+                }
+            )
+        return output
+    
+    def get_point_average(self, period):
+        progression = self.get_point_progression()
+        output = []
+        for item in progression:
+            output.append(item[period])
+        return sum(output)/len(output)
+
 
 
         

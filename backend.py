@@ -51,7 +51,7 @@ def search(team):
     except Exception:
         return []
 
-def deleteByID(team, match):
+def delete(team, match):
     conn=sqlite3.connect(database)
     cur=conn.cursor()
     cur.execute("DELETE FROM performance WHERE team=" + team + " and match=" + match)
@@ -94,5 +94,14 @@ def add2db(csv_line):
         except:
             return False
     return False
+
+def allTeams():
+    teams=[]
+    lists = view()
+    for lists in lists:
+        team = lists[1]
+        if team not in teams:
+            teams.append(str(team))
+    return teams
 
 connect()

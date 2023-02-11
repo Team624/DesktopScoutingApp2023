@@ -99,14 +99,15 @@ class Match:
         L, M, H = map["L"], map["M"], map["H"]
         return (L.count(1)+L.count(2))*2+M.count(1)*3+H.count(1)*5
 
-    def translate(self, index, values_list):
-        return values_list[index]
+    def changing_station_points(self):
+        auton_charge_dist = [0,8,12]
+        teleop_charge_dist = [0, 2, 6, 10]
+        return auton_charge_dist[self.auto_charge], teleop_charge_dist[self.charging_station_endgame]
     
-    def conditional(self, value, points):
-        if value==1:
-            return points
-        else:
-            return 0
+    def mobility_points(self):
+        if self.move==1:
+            return 3
+        return 0
     
     def get_map(self):
         data = {

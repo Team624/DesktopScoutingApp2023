@@ -1,6 +1,16 @@
 from bs4 import BeautifulSoup
 import base64
-import graphing
+from graphing import getAutonGrid
+import os 
+
+html_template = """<html>
+<head>
+<link rel= "stylesheet" type= "text/css" href= "./style.css">
+<title>TEAM NUMBER</title>
+</head>
+<body>
+</body>
+</html>"""
 
 def get_src(image_path):
     img_file = open(image_path, "rb").read() 
@@ -8,16 +18,24 @@ def get_src(image_path):
     return "data:image/png;base64, "+img_str
 
 def add_image(match_object):
-    team = str(match_object.match)
-    with open(team+".html", "r") as f:
+    team = str(match_object.team)
+    with open("auton/"+team+".html", "r") as f:
         contents = f.read()
         soup = BeautifulSoup(contents, "html.parser")
-    new_graph = graphing.getAutonGrid(match_object.get_map()["auton"])
+    new_graph = getAutonGrid(match_object.get_map()["auton"])
     soup.body.append(soup.new_tag("br"))
     text = soup.new_tag("h1")
     text.string=str(match_object.match)
     soup.body.append(text)
     new_link = soup.new_tag("img", src="data:image/png;base64, "+new_graph)
     soup.body.append(new_link)
-    with open(team+".html", "w") as f:
+    with open("auton/"+team+".html", "w") as f:
         f.write(str(soup))
+
+def create_empty(team):
+    directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "auton")
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    f = open("auton/"+team+'.html', 'w')
+    f.write(html_template.replace("TEAM NUMBER", team))
+    f.close()

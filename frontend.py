@@ -6,6 +6,11 @@ from pyzbar.pyzbar import decode
 from utils import *
 from analyst import analytics
 import json
+import webbrowser
+import os
+from html_editor import add_image, create_empty
+from basic import Match
+import threading
 
 config_file = json.load(open('assets/config.json'))
 types = config_file["types"]
@@ -25,13 +30,24 @@ def decoder(image):
         (x,y,_,_) = obj.rect
         pts = np.array(points, np.int32)
         pts = pts.reshape((-1, 1, 2))
-        cv2.polylines(image, [pts], True, (0, 255, 0), 3)
+        image = cv2.polylines(image, [pts], True, (0, 255, 0), 3)
         barcodeData = obj.data.decode("utf-8")
         try:
-            backend.add2db(barcodeData)
-            cv2.putText(image, "Good stuff", (x,y), cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0), 2)
+            added = backend.add2db(barcodeData)
+            if added:
+                thread = threading.Thread(target=update_html)
+                thread.start()
+            cv2.putText(image, "Added to DB", (x,y), cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0), 2)
         except Exception:
             cv2.putText(image, "Error 404", (x,y), cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0), 2)
+
+def update_html():
+    match_object = Match(backend.view()[-1])
+    team = str(match_object.team)
+    location = os.path.join(os.path.dirname(os.path.abspath(__file__)), "auton", team+".html")
+    if not os.path.exists(location):
+        create_empty(team)
+    add_image(match_object)
 
 def scan():
     while True:
@@ -49,23 +65,11 @@ def switch():
     global cap 
     cap = cv2.VideoCapture(camera_constant)
 
-def count():
-    try:
-        dataCounterEntry.delete(0,END)
-        dataCounterEntry.insert(0, str(len(backend.view())))
-    except Exception:
-        pass
-
-# def change_image():
-#     try:
-#         new_image = graphing.get_graph(["624"])
-#         img2 = ImageTk.PhotoImage(new_image)
-#         label.configure(image=img2)
-#         label.image=img2
-#     except:
-#         img2 = ImageTk.PhotoImage(Image.open("assets/dont_let_him_cool.png"))
-#         label.configure(image=img2)
-#         label.image=img2
+def open_link():
+    team = dataCounterEntry.get()
+    location = os.path.join(os.path.dirname(os.path.abspath(__file__)), "auton", team+".html")
+    if os.path.exists(location):
+        webbrowser.open(location,new=1)
 
 cvButton=Button(window, text="Scan", width=12, command=scan)
 cvButton.grid(row=0, column=0)
@@ -73,7 +77,7 @@ switchCamera=Button(window, text="Switch Camera", width=12, command=switch)
 switchCamera.grid(row=1, column=0)
 dataCounterEntry=Entry(window, textvariable=counterController, width=12)
 dataCounterEntry.grid(row=0, column=6)
-CounterButton=Button(window, text="Count", width=12)
+CounterButton=Button(window, text="Count", width=12, command=open_link)
 CounterButton.grid(row=1, column=6)
 
 teamController1 = StringVar()
@@ -142,17 +146,19 @@ for i in range(0, len(types)):
 def update(index):
     team = dataEntries[index].get()
     analyst = analytics(team)
-    data = [
-        analyst.get_list_cargo_general("L", "auton"),
-        analyst.get_list_cargo_general("M", "auton"),
-        analyst.get_list_cargo_general("H", "auton"),
-        analyst.get_list_cargo_general("L", "teleop"),
-        analyst.get_list_cargo_general("M", "teleop"),
-        analyst.get_list_cargo_general("H", "teleop"),
-    ]
+    if analyst.not_empty():
+        data = [
+            round(get_average(analyst.get_list_cargo_general("L", "auton")),2),
+            round(get_average(analyst.get_list_cargo_general("M", "auton")),2),
+            round(get_average(analyst.get_list_cargo_general("H", "auton")),2),
+            round(get_average(analyst.get_list_cargo_general("L", "teleop")),2),
+            round(get_average(analyst.get_list_cargo_general("M", "teleop")),2),
+            round(get_average(analyst.get_list_cargo_general("H", "teleop")),2)
+        ]
+    else:
+        data = ["NONE"]*var_nums
     for i in range(0, var_nums):
-        average = round(get_average(data[i]),2)
-        text = str(average)
+        text = str(data[i])
         buttons[index][i].delete(0,END)
         buttons[index][i].insert(0, text)
 

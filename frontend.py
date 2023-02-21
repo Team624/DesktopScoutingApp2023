@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 import backend
 import cv2 
 import numpy as np
@@ -155,12 +156,16 @@ def update(index):
             round(get_average(analyst.get_list_cargo_general("M", "teleop")),2),
             round(get_average(analyst.get_list_cargo_general("H", "teleop")),2)
         ]
+        docked_auton, engaged_auton, total_auton = analyst.format_charge("auton")
+        docked_teleop, engaged_teleop, total_teleop= analyst.format_charge("teleop")
+        data.append(str(engaged_auton)+"-"+str(docked_auton)+"-"+str(total_auton-docked_auton-engaged_auton))
+        data.append(str(engaged_teleop)+"-"+str(docked_teleop)+"-"+str(total_teleop-docked_teleop-engaged_teleop))
+        data.append(round(get_average(analyst.get_mobility_progression()), 2))
     else:
         data = ["NONE"]*var_nums
     for i in range(0, var_nums):
         text = str(data[i])
         buttons[index][i].delete(0,END)
         buttons[index][i].insert(0, text)
-
 
 window.mainloop()

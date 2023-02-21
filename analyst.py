@@ -15,7 +15,9 @@ class analytics:
     def get_list_cargo_general(self, level, period):
         progression = []
         for match in self.data:
-            count = match.get_cargo_specific_count("cube")[period][level]+match.get_cargo_specific_count("cone")[period][level]
+            cubes = match.get_cargo_specific_count("cube")[period][level]
+            cones = match.get_cargo_specific_count("cone")[period][level]
+            count = cubes + cones
             progression.append(count)
         return progression
     
@@ -42,7 +44,7 @@ class analytics:
             return docked, engaged, len(auton)
         else:
             docked =endgame.count(2)
-            engaged = auton.count(3)
+            engaged = endgame.count(3)
             return docked, engaged, len(endgame)
  
     def triple_success_rate(self):
@@ -81,9 +83,33 @@ class analytics:
             output.append(item[period])
         return sum(output)/len(output)
 
+    def get_time_progression(self):
+        docked_endgame, engaged_endgame = [], []
+        for match in self.data:
+            if match.charging_station_endgame==2:
+                docked_endgame.append(match.charging_station_time)
+            elif match.charging_station_endgame==3:
+                engaged_endgame.append(match.charging_station_time)
+        return docked_endgame, engaged_endgame
+    
+    def get_efficiency_progression(self):
+        ratios = []
+        for match in self.data:
+            cargo = match.teleop_raw_count()
+            fumbles = match.fumbles
+            if cargo+fumbles==0:
+                ratios.append(0)
+            else:
+                ratios.append((cargo+fumbles)/fumbles)
+        return ratios
+    
+    def get_mobility_progression(self):
+        progression = []
+        for match in self.data:
+            progression.append(match.move)
+        return progression
 
-
-        
-
+    
+    
             
         

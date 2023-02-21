@@ -79,7 +79,7 @@ class Match:
         self.teleop_cone_H7 = data[57]
         self.teleop_cube_H8 = data[58]
         self.teleop_cone_H9 = data[59]
-        self.cycles = data[60]
+        self.fumbles = data[60]
         self.fouls_committed = data[61]
         self.charging_station_time = data[62]
         self.charging_station_endgame = data[63]
@@ -98,6 +98,16 @@ class Match:
         map = self.get_map()["teleop"]
         L, M, H = map["L"], map["M"], map["H"]
         return (L.count(1)+L.count(2))*2+M.count(1)*3+H.count(1)*5
+    
+    def teleop_raw_count(self):
+        map = self.get_map()["teleop"]
+        L, M, H = map["L"], map["M"], map["H"]
+        return L+M+H
+    
+    def auton_raw_count(self):
+        map = self.get_map()["auton"]
+        L, M, H = map["L"], map["M"], map["H"]
+        return L+M+H
 
     def changing_station_points(self):
         auton_charge_dist = [0,8,12]

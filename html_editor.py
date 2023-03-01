@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import base64
 from graphing import getAutonGrid
 import os 
+from basic import Match
 
 html_template = """<html>
 <head>
@@ -19,6 +20,9 @@ def get_src(image_path):
 
 def add_image(match_object):
     team = str(match_object.team)
+    location = os.path.join(os.path.dirname(os.path.abspath(__file__)), "auton", team+".html")
+    if not os.path.exists(location):
+        create_empty(team)
     with open("auton/"+team+".html", "r") as f:
         contents = f.read()
         soup = BeautifulSoup(contents, "html.parser")
@@ -39,3 +43,7 @@ def create_empty(team):
     f = open("auton/"+team+'.html', 'w')
     f.write(html_template.replace("TEAM NUMBER", team))
     f.close()
+
+def generate_html_loop(data):
+    for match_list in data:
+        add_image(Match(match_list))

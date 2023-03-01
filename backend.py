@@ -90,18 +90,18 @@ def add2db(csv_line):
     if parsed!=[]:
         try: 
             insert(parsed)
-            return True
+            return True, parsed
         except:
-            return False
-    return False
+            return False, []
+    return False, []
 
 def allTeams():
     teams=[]
     lists = view()
     for lists in lists:
-        team = lists[1]
+        team = str(lists[1])
         if team not in teams:
-            teams.append(str(team))
+            teams.append(team)
     return teams
 
 connect()

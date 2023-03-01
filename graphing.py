@@ -22,7 +22,7 @@ def radar(json_data, categories):
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[0, 9]
+                range=[0, 6]
             )
         ),
         showlegend=True

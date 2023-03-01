@@ -9,7 +9,7 @@ from analyst import analytics
 import json
 import webbrowser
 import os
-from html_editor import add_image, create_empty
+from html_editor import generate_html_loop
 from basic import Match
 import threading
 
@@ -33,22 +33,22 @@ def decoder(image):
         pts = pts.reshape((-1, 1, 2))
         image = cv2.polylines(image, [pts], True, (0, 255, 0), 3)
         barcodeData = obj.data.decode("utf-8")
-        try:
-            added = backend.add2db(barcodeData)
-            if added:
-                thread = threading.Thread(target=update_html)
-                thread.start()
-            cv2.putText(image, "Added to DB", (x,y), cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0), 2)
-        except Exception:
-            cv2.putText(image, "Error 404", (x,y), cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0), 2)
-
-def update_html():
-    match_object = Match(backend.view()[-1])
-    team = str(match_object.team)
-    location = os.path.join(os.path.dirname(os.path.abspath(__file__)), "auton", team+".html")
-    if not os.path.exists(location):
-        create_empty(team)
-    add_image(match_object)
+        if barcodeData.count("\n")>0:
+            barcodeData = barcodeData.split("\n")[0:-1]
+        else:
+            barcodeData = [barcodeData]
+        html_additions = []
+        for indiv_barcode in barcodeData:
+            try:
+                added, new_data = backend.add2db(indiv_barcode)
+                if added:
+                    html_additions.append(new_data)
+            except:
+                if len(barcodeData)==1:
+                    cv2.putText(image, "Error 404", (x,y), cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0), 2)
+        cv2.putText(image, "Added to DB", (x,y), cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0), 2)
+        thread = threading.Thread(target=generate_html_loop, args=(html_additions,))
+        thread.start()
 
 def scan():
     while True:

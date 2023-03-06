@@ -4,6 +4,8 @@ import math
 import json 
 import os
 from openpyxl.styles import PatternFill
+import backend
+from html_editor import generate_html_loop
 
 config_file = json.load(open('assets/config.json'))
 colors = config_file["colors"]
@@ -27,3 +29,11 @@ def colorCode(filename):
             color = colors[index]
             cell.fill = PatternFill(fgColor=color, bgColor=color, fill_type='solid')
     doc.save(filename+".xlsx")
+
+def generate_autons(team):
+    data = backend.search(team)
+    generate_html_loop(data)
+
+def get_all_autons():
+    for team in backend.allTeams():
+        generate_autons(team)

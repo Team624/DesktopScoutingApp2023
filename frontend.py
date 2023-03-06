@@ -19,7 +19,7 @@ var_nums = len(types)
 window = Tk()
 window.wm_title("Scouting Unlimited")
 counterController=StringVar()
-camera_constant = 0
+camera_constant = 1
 cap = cv2.VideoCapture(camera_constant)
 
 def decoder(image):
@@ -78,7 +78,7 @@ switchCamera=Button(window, text="Switch Camera", width=12, command=switch)
 switchCamera.grid(row=1, column=0)
 dataCounterEntry=Entry(window, textvariable=counterController, width=12)
 dataCounterEntry.grid(row=0, column=6)
-CounterButton=Button(window, text="Count", width=12, command=open_link)
+CounterButton=Button(window, text="Auton", width=12, command=open_link)
 CounterButton.grid(row=1, column=6)
 
 teamController1 = StringVar()

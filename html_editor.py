@@ -6,7 +6,6 @@ from basic import Match
 
 html_template = """<html>
 <head>
-<link rel= "stylesheet" type= "text/css" href= "./style.css">
 <title>TEAM NUMBER</title>
 </head>
 <body>

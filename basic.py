@@ -101,18 +101,30 @@ class Match:
     
     def teleop_raw_count(self):
         map = self.get_map()["teleop"]
-        L, M, H = map["L"], map["M"], map["H"]
+        L = map["L"].count(1)+map["L"].count(2)
+        M = map["M"].count(1)
+        H = map["H"].count(1)
         return L+M+H
     
     def auton_raw_count(self):
         map = self.get_map()["auton"]
-        L, M, H = map["L"], map["M"], map["H"]
+        L = map["L"].count(1)+map["L"].count(2)
+        M = map["M"].count(1)
+        H = map["H"].count(1)
         return L+M+H
 
     def changing_station_points(self):
         auton_charge_dist = [0,8,12]
         teleop_charge_dist = [0, 2, 6, 10]
         return auton_charge_dist[self.auto_charge], teleop_charge_dist[self.charging_station_endgame]
+
+    def auton_charging_station_points(self):
+        auton_charge_dist = [0,8,12]
+        return auton_charge_dist[self.auto_charge]
+
+    def endgame_charging_station_points(self):
+        teleop_charge_dist = [0, 2, 6, 10]
+        return teleop_charge_dist[self.charging_station_endgame]
     
     def mobility_points(self):
         if self.move==1:
@@ -308,7 +320,16 @@ class Match:
         else:
             return cones
 
+    def get_cargo_general(self, period, level):
+        cubes = self.get_cargo_specific_count("cube")[period][level]
+        cones = self.get_cargo_specific_count("cone")[period][level]
+        return cubes + cones
 
+    def get_auton_points(self):
+        auton_charge, _ = self.changing_station_points()
+        mobility = self.mobility_points()
+        cargo = self.auton_cargo()
+        return cargo+mobility+auton_charge
 
-
-
+    def get_total_points(self):
+        return self.get_auton_points()+self.teleop_cargo()+self.endgame_charging_station_points()

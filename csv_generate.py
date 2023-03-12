@@ -38,31 +38,32 @@ def contribution_csv(color=True):
         docked_teleop, engaged_teleop, len_teleop = analyst.format_charge("teleop")
         team_data = [
             team,
-            round(get_average(analyst.get_list_cargo_general("L", "auton")),2),
-            round(get_average(analyst.get_list_cargo_general("M", "auton")),2),
-            round(get_average(analyst.get_list_cargo_general("H", "auton")),2),
-            round(get_average(analyst.get_list_cargo_general("L", "teleop")),2),
-            round(get_average(analyst.get_list_cargo_general("M", "teleop")),2),
-            round(get_average(analyst.get_list_cargo_general("H", "teleop")),2),
-            round(get_average(analyst.get_list_cargo_specific("L", "teleop", "cone")),2),
-            round(get_average(analyst.get_list_cargo_specific("M", "teleop", "cone")),2),
-            round(get_average(analyst.get_list_cargo_specific("H", "teleop", "cone")),2),
-            round(get_average(analyst.get_list_cargo_specific("L", "teleop", "cube")),2),
-            round(get_average(analyst.get_list_cargo_specific("M", "teleop", "cube")),2),
-            round(get_average(analyst.get_list_cargo_specific("H", "teleop", "cube")),2),
-            round(get_average(analyst.get_list_cargo_specific("H", "teleop", "cone"))+get_average(analyst.get_list_cargo_specific("M", "teleop", "cone"))+get_average(analyst.get_list_cargo_specific("L", "teleop", "cone")),2),
-            round(get_average(analyst.get_list_cargo_specific("H", "teleop", "cube"))+get_average(analyst.get_list_cargo_specific("M", "teleop", "cube"))+get_average(analyst.get_list_cargo_specific("L", "teleop", "cube")),2),
+            get_average(analyst.get_list_cargo_general("L", "auton")),
+            get_average(analyst.get_list_cargo_general("M", "auton")),
+            get_average(analyst.get_list_cargo_general("H", "auton")),
+            get_average(analyst.get_list_cargo_general("L", "teleop")),
+            get_average(analyst.get_list_cargo_general("M", "teleop")),
+            get_average(analyst.get_list_cargo_general("H", "teleop")),
+            get_average(analyst.get_list_cargo_specific("L", "teleop", "cone")),
+            get_average(analyst.get_list_cargo_specific("M", "teleop", "cone")),
+            get_average(analyst.get_list_cargo_specific("H", "teleop", "cone")),
+            get_average(analyst.get_list_cargo_specific("L", "teleop", "cube")),
+            get_average(analyst.get_list_cargo_specific("M", "teleop", "cube")),
+            get_average(analyst.get_list_cargo_specific("H", "teleop", "cube")),
+            get_average(analyst.get_list_cargo_specific_ignore_level("cone", "teleop")), 
+            get_average(analyst.get_list_cargo_specific_ignore_level("cube", "teleop")), 
             round(docked_auto/len_auton, 2),
             round(engaged_auto/len_auton, 2),
             round(docked_teleop/len_teleop, 2),
             round(engaged_teleop/len_teleop, 2),
-            round(analyst.get_point_average("auton"),2),
-            round(analyst.get_point_average("teleop"), 2),
-            round(analyst.get_point_average("endgame"),2),
-            round(analyst.get_point_average("auton")+analyst.get_point_average("teleop")+analyst.get_point_average("endgame"),2),
+            analyst.get_point_average("auton"),
+            analyst.get_point_average("teleop"),
+            analyst.get_point_average("endgame"),
+            analyst.get_point_average("total")
         ]
         csv_list.append(team_data)
     save(csv_list, "averages")
     if color:
         colorCode("averages")
+        
 contribution_csv()

@@ -1,5 +1,8 @@
+import os
+import pandas as pd
+
 def get_average(data):
-    return sum(data)/len(data)
+    return round(sum(data)/len(data),2)
 
 def get_trimmed(data, cut=2):
     data = sorted(data)[cut:-cut]
@@ -16,4 +19,11 @@ def weighted(data, const = 1.25):
         exponent+=increment
     return weighted_sum/weight
 
-
+def save(data, filename, folder=""):
+    if folder!="":
+        directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), folder)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        folder+="\\"
+    df = pd.DataFrame(data)
+    df.to_excel(folder+filename+".xlsx", index=False, header=False)

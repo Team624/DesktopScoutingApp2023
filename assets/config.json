@@ -67,27 +67,6 @@
         "triple_balance",
         "disconnect"
     ],
-    "position": [
-        "left",
-        "center",
-        "right"
-    ],
-    "preload": [
-        "none",
-        "cube",
-        "cone"
-    ],
-    "auto_charge": [
-        "none",
-        "docked",
-        "engaged"
-    ],
-    "charging_station_endgame": [
-        "none",
-        "park",
-        "docked",
-        "engaged"
-    ],
     "colors": [
         "FF00FF00",
         "FF42FF00",

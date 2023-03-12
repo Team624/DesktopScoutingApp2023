@@ -1,13 +1,10 @@
 import plotly.graph_objects as go
-import matplotlib.pyplot as plt
+from analyst import analytics
 from base64 import b64encode
 from io import BytesIO
-import seaborn as sns
+from utils import *
 import PIL.Image
 import base64
-import os
-from analyst import analytics
-from utils import *
 
 def radar(json_data, categories):
     fig = go.Figure()
@@ -22,7 +19,7 @@ def radar(json_data, categories):
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[0, 6]
+                range=[0, 4]
             )
         ),
         showlegend=True
@@ -31,35 +28,6 @@ def radar(json_data, categories):
     encoding = b64encode(img_bytes).decode()
     img = PIL.Image.open(BytesIO(base64.b64decode(encoding)))
     return img
-
-def getHeatMap(maps_data, team):
-    x, y = [], []
-    coordinates = {"L":.5, "M":1.5, "H":2.5}
-    for data in maps_data:
-        for level in ["L", "M", "H"]:
-            for index in range(0,9):
-                if data[level][index]==1 or data[level][index]==2:
-                    x.append(index+.5)
-                    y.append(coordinates[level])
-    fig = plt.figure(figsize=(10,4))
-    plt.axes().set_aspect('equal')
-    sns.kdeplot(
-            x=x,
-            y=y,
-            shade = True,
-            shade_lowest=False,
-            alpha=.6,
-            n_levels=10,
-            cmap = 'plasma',
-            cbar=True
-    )
-    plt.title(team)
-    background_image = plt.imread(os.path.join(os.curdir,"assets", "grid.png"))
-    plt.imshow(background_image, extent=[0, 9, 0, 3])
-    plt.xlim(0,9)
-    plt.ylim(0,3)
-    plt.show()
-    return fig
 
 def getAutonGrid(data):
     fig = go.Figure()

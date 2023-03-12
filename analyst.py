@@ -1,9 +1,11 @@
 import backend
 from basic import Match
+from utils import save
 
 class analytics:
 
     def __init__(self, teamNumber):
+        self.teamNumber = teamNumber
         self.data = [Match(indiv_data) for indiv_data in backend.search(teamNumber)]
     
     def not_empty(self):
@@ -15,16 +17,22 @@ class analytics:
     def get_list_cargo_general(self, level, period):
         progression = []
         for match in self.data:
-            cubes = match.get_cargo_specific_count("cube")[period][level]
-            cones = match.get_cargo_specific_count("cone")[period][level]
-            count = cubes + cones
-            progression.append(count)
+            progression.append(match.get_cargo_general(period, level))
         return progression
     
     def get_list_cargo_specific(self, level, period, cargo):
         progression = []
         for match in self.data:
             count = match.get_cargo_specific_count(cargo)[period][level]
+            progression.append(count)
+        return progression
+    
+    def get_list_cargo_specific_ignore_level(self, cargo, period):
+        progression = []
+        for match in self.data:
+            count = 0
+            for level in ["L", "M", "H"]:
+                count += match.get_cargo_specific_count(cargo)[period][level]
             progression.append(count)
         return progression
     
@@ -63,15 +71,12 @@ class analytics:
     def get_point_progression(self):
         output = []
         for match in self.data:
-            mobility = match.mobility_points()
-            auton_cargo = match.auton_cargo()
-            teleop_cargo = match.teleop_cargo()
-            auton_charge, endgame_charge = match.changing_station_points()
             output.append(
                 {
-                    "auton": mobility+auton_cargo+auton_charge,
-                    "teleop": teleop_cargo,
-                    "endgame": endgame_charge
+                    "auton": match.get_auton_points(),
+                    "teleop": match.teleop_cargo(),
+                    "endgame": match.endgame_charging_station_points(),
+                    "total": match.get_total_points()
                 }
             )
         return output
@@ -81,16 +86,7 @@ class analytics:
         output = []
         for item in progression:
             output.append(item[period])
-        return sum(output)/len(output)
-
-    def get_time_progression(self):
-        docked_endgame, engaged_endgame = [], []
-        for match in self.data:
-            if match.charging_station_endgame==2:
-                docked_endgame.append(match.charging_station_time)
-            elif match.charging_station_endgame==3:
-                engaged_endgame.append(match.charging_station_time)
-        return docked_endgame, engaged_endgame
+        return round(sum(output)/len(output),2)
     
     def get_efficiency_progression(self):
         ratios = []
@@ -100,7 +96,7 @@ class analytics:
             if cargo+fumbles==0:
                 ratios.append(0)
             else:
-                ratios.append((cargo+fumbles)/fumbles)
+                ratios.append(cargo/(cargo+fumbles))
         return ratios
     
     def get_mobility_progression(self):
@@ -108,8 +104,45 @@ class analytics:
         for match in self.data:
             progression.append(match.move)
         return progression
-
     
-    
-            
-        
+    def csv_progression(self):
+        output = [
+            [
+                "Match Number",
+                "Auton Low",
+                "Auton Mid",
+                "Auton High",
+                "Auton Charge",
+                "Auton Mobility",
+                "Pieces in Auton",
+                "Points in Auton",
+                "Teleop Low",
+                "Teleop Mid", 
+                "Teleop High",
+                "Pieces in Teleop",
+                "Points in Teleop",
+                "Endgame Points",
+                "Total"
+            ]
+        ]
+        for match in self.data:
+            output.append(
+                [
+                    match.match,
+                    match.get_cargo_general("auton", "L"),
+                    match.get_cargo_general("auton", "M"),
+                    match.get_cargo_general("auton", "H"),
+                    match.auton_charging_station_points(),
+                    match.mobility_points(),
+                    match.auton_raw_count(),
+                    match.get_auton_points(),
+                    match.get_cargo_general("teleop", "L"),
+                    match.get_cargo_general("teleop", "M"),
+                    match.get_cargo_general("teleop", "H"),
+                    match.teleop_raw_count(),
+                    match.teleop_cargo(),
+                    match.endgame_charging_station_points(),
+                    match.get_total_points()
+                ]
+            )
+        save(output, self.teamNumber, "progression")

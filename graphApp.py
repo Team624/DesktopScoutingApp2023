@@ -24,7 +24,6 @@ def plotProgression(teams, period):
     plt.title("Teleop Data")
     plt.show()
 
-
 window = Tk() 
 window.title('Data Visualization')
 teamsController=StringVar()

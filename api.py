@@ -2,6 +2,11 @@ import numpy as np
 import requests
 from scipy.linalg import solve
 import json 
+from utils import save
+import pandas as pd
+import backend
+from basic import Match
+import concurrent.futures
 
 config = json.load(open('assets/config.json'))
 class TBA:
@@ -57,10 +62,7 @@ class TBA:
         return final_data
     
     def get_grid(self, match_object, teleop=True):
-        if teleop:
-            period = "teleopCommunity"
-        else:
-            period = "autoCommunity"
+        period = "teleopCommunity" if teleop else "autoCommunity"
         team = str(match_object.team)
         match = str(match_object.match)
         link = "https://www.thebluealliance.com/api/v3/match/"+self.event+"_qm"+match
@@ -82,7 +84,7 @@ class TBA:
                         teleop_grid[level][index]="None"
             return teleop_grid
          
-    def check_match(self, match, period):
+    def check_grid(self, match, period):
         tba_data = self.get_grid(match, period=="teleop")
         if tba_data is None:
             return -1
@@ -98,3 +100,86 @@ class TBA:
                 if 0<local_value<=max_val and tba_value=="None":
                     mistakes+=1
         return mistakes
+
+    def check_charging(self, match_object, auton):
+        team = str(match_object.team)
+        match = str(match_object.match)
+        link = "https://www.thebluealliance.com/api/v3/match/"+self.event+"_qm"+match
+        match_data = requests.get(url=link, headers=self.key).json()
+        if "frc"+team in match_data["alliances"]["red"]['team_keys']:
+            team_index= match_data["alliances"]["red"]['team_keys'].index("frc"+team)
+            alliance = "red"
+        elif "frc"+team in match_data["alliances"]["blue"]['team_keys']:
+            team_index= match_data["alliances"]["blue"]['team_keys'].index("frc"+team)
+            alliance = "blue"
+        else:
+            return False
+        score_breakdown = match_data["score_breakdown"][alliance]
+        if auton:
+            result = score_breakdown["autoChargeStationRobot"+str(team_index+1)]
+            if result=="None":
+                return match_object.auto_charge==0
+            else:
+                if score_breakdown["autoChargeStationPoints"]==12:
+                    return match_object.auto_charge==2
+                else:
+                    return match_object.auto_charge==1
+        else:
+            result = score_breakdown["endGameChargeStationRobot"+str(team_index+1)]
+            if result=="None":
+                return match_object.charging_station_endgame==0
+            elif result=="Park":
+                return match_object.charging_station_endgame==1
+            else:
+                robotsOn = [
+                    score_breakdown["endGameChargeStationRobot1"],
+                    score_breakdown["endGameChargeStationRobot2"],
+                    score_breakdown["endGameChargeStationRobot3"]
+                ].count("Docked")
+                points_per_bot = score_breakdown["endGameChargeStationPoints"]/robotsOn
+                if points_per_bot==6:
+                    return match_object.charging_station_endgame==2
+                else:
+                    return match_object.charging_station_endgame==3
+            
+    def export_links(self):
+        df = pd.DataFrame(self.get_links(), columns =['Team', 'Links'])
+        save(df, 'link')
+
+    def check_match(self, match_object):
+        auton_accuracy = self.check_grid(match_object, 'auton')
+        teleop_accuracy = self.check_grid(match_object, 'teleop')
+        auton_charge = self.check_charging(match_object, True)
+        teleop_charge = self.check_charging(match_object, False)
+        return [
+                match_object.match,
+                match_object.team,
+                auton_accuracy, 
+                auton_charge, 
+                teleop_accuracy, 
+                teleop_charge
+            ]
+    
+    def check_db(self):
+        data = [Match(indiv_data) for indiv_data in backend.view()]
+        accuracy = []
+        threads = []
+        header = [
+                "Match",
+                "Team",
+                "Auton Mistakes",
+                "Auton Charge Mistakes",
+                "Teleop Mistakes",
+                "Teleop Charge Mistakes"
+        ]
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for match_object in data:
+                thread = executor.submit(self.check_match, match_object)
+                threads.append(thread)
+        for thread in threads:
+            result = thread.result()
+            if result[-2]!=-1:
+                accuracy.append(thread.result())
+        accuracy = sorted(accuracy, key=lambda x:x[0])
+        accuracy.insert(0, header)
+        save(accuracy, "accuracy")

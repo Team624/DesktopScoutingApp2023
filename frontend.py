@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter import ttk
 import backend
 import cv2 
 import numpy as np
@@ -10,7 +9,6 @@ import json
 import webbrowser
 import os
 from html_editor import generate_html_loop
-from basic import Match
 import threading
 
 config_file = json.load(open('assets/config.json'))
@@ -149,12 +147,12 @@ def update(index):
     analyst = analytics(team)
     if analyst.not_empty():
         data = [
-            round(get_average(analyst.get_list_cargo_general("L", "auton")),2),
-            round(get_average(analyst.get_list_cargo_general("M", "auton")),2),
-            round(get_average(analyst.get_list_cargo_general("H", "auton")),2),
-            round(get_average(analyst.get_list_cargo_general("L", "teleop")),2),
-            round(get_average(analyst.get_list_cargo_general("M", "teleop")),2),
-            round(get_average(analyst.get_list_cargo_general("H", "teleop")),2)
+            get_average(analyst.get_list_cargo_general("L", "auton")),
+            get_average(analyst.get_list_cargo_general("M", "auton")),
+            get_average(analyst.get_list_cargo_general("H", "auton")),
+            get_average(analyst.get_list_cargo_general("L", "teleop")),
+            get_average(analyst.get_list_cargo_general("M", "teleop")),
+            get_average(analyst.get_list_cargo_general("H", "teleop"))
         ]
         docked_auton, engaged_auton, total_auton = analyst.format_charge("auton")
         docked_teleop, engaged_teleop, total_teleop= analyst.format_charge("teleop")

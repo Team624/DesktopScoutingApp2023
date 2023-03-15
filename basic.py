@@ -79,12 +79,11 @@ class Match:
         self.teleop_cone_H7 = data[57]
         self.teleop_cube_H8 = data[58]
         self.teleop_cone_H9 = data[59]
-        self.fumbles = data[60]
+        self.cycles = data[60]
         self.fouls_committed = data[61]
-        self.charging_station_time = data[62]
-        self.charging_station_endgame = data[63]
-        self.triple_balance = data[64]
-        self.disconnect = data[65]
+        self.charging_station_endgame = data[62]
+        self.triple_balance = data[63]
+        self.disconnect = data[64]
     
     def weight(self, variable, point_value):
         return variable*point_value

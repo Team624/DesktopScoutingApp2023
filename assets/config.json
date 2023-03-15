@@ -62,7 +62,6 @@
         "teleop_cone_H9",
         "cycles",
         "fouls_committed",
-        "charging_station_time",
         "charging_station_endgame",
         "triple_balance",
         "disconnect"

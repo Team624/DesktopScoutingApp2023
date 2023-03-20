@@ -87,6 +87,8 @@
         "endgame_charge",
         "mobility"
     ],
-    "tba-key":"",
-    "event": ""
+    "tba-key":"9yCEygpvVeVwzxOMQ8Hv3KISU1B112iQejqFNVUMdtPwtMwsxoTYg89UH7iWDokx",
+    "event": "",
+    "rp1_threshold":0.7,
+    "rp2_threshold":0.5
 }

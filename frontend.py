@@ -10,12 +10,15 @@ import webbrowser
 import os
 from html_editor import generate_html_loop
 import threading
+from tkinter import ttk
 
 config_file = json.load(open('assets/config.json'))
 types = config_file["types"]
 var_nums = len(types)
 window = Tk()
 window.wm_title("Scouting Unlimited")
+style = ttk.Style()
+style.configure('TButton',  font=('Arial', 8), foreground="black")
 counterController=StringVar()
 camera_constant = 1
 cap = cv2.VideoCapture(camera_constant)
@@ -70,49 +73,49 @@ def open_link():
     if os.path.exists(location):
         webbrowser.open(location,new=1)
 
-cvButton=Button(window, text="Scan", width=12, command=scan)
+cvButton=ttk.Button(window, text="Scan", width=14, command=scan)
 cvButton.grid(row=0, column=0)
-switchCamera=Button(window, text="Switch Camera", width=12, command=switch)
+switchCamera=ttk.Button(window, text="Switch Camera", width=14, command=switch)
 switchCamera.grid(row=1, column=0)
 dataCounterEntry=Entry(window, textvariable=counterController, width=12)
 dataCounterEntry.grid(row=0, column=6)
-CounterButton=Button(window, text="Auton", width=12, command=open_link)
+CounterButton=ttk.Button(window, text="Auton", width=12, command=open_link)
 CounterButton.grid(row=1, column=6)
 
 teamController1 = StringVar()
 newDataEntry1=Entry(window, textvariable=teamController1)
 newDataEntry1.grid(row=2, column=1)
-b1=Button(window, text="Update", width=12, command= lambda: update(0))
+b1=ttk.Button(window, text="Update", width=12, command= lambda: update(0))
 b1.grid(row=3, column=1)
 
 teamController2 = StringVar()
 newDataEntry2=Entry(window, textvariable=teamController2)
 newDataEntry2.grid(row=2, column=2)
-b2=Button(window, text="Update", width=12, command= lambda: update(1))
+b2=ttk.Button(window, text="Update", width=12, command= lambda: update(1))
 b2.grid(row=3, column=2)
 
 teamController3 = StringVar()
 newDataEntry3=Entry(window, textvariable=teamController3)
 newDataEntry3.grid(row=2, column=3)
-b3=Button(window, text="Update", width=12, command= lambda: update(2))
+b3=ttk.Button(window, text="Update", width=12, command= lambda: update(2))
 b3.grid(row=3, column=3)
 
 teamController4 = StringVar()
 newDataEntry4=Entry(window, textvariable=teamController4)
 newDataEntry4.grid(row=2, column=4)
-b4=Button(window, text="Update", width=12, command= lambda: update(3))
+b4=ttk.Button(window, text="Update", width=12, command= lambda: update(3))
 b4.grid(row=3, column=4)
 
 teamController5 = StringVar()
 newDataEntry5=Entry(window, textvariable=teamController5)
 newDataEntry5.grid(row=2, column=5)
-b5=Button(window, text="Update", width=12, command= lambda: update(4))
+b5=ttk.Button(window, text="Update", width=12, command= lambda: update(4))
 b5.grid(row=3, column=5)
 
 teamController6 = StringVar()
 newDataEntry6=Entry(window, textvariable=teamController6)
 newDataEntry6.grid(row=2, column=6)
-b6=Button(window, text="Update", width=12, command= lambda: update(5))
+b6=ttk.Button(window, text="Update", width=12, command= lambda: update(5))
 b6.grid(row=3, column=6)
 
 dataEntries = [

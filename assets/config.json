@@ -83,9 +83,10 @@
         "L_teleop",
         "M_teleop",
         "H_teleop",
+        "Cubes", 
+        "Cones",
         "auton_charge",
-        "endgame_charge",
-        "mobility"
+        "endgame_charge"
     ],
     "tba-key":"9yCEygpvVeVwzxOMQ8Hv3KISU1B112iQejqFNVUMdtPwtMwsxoTYg89UH7iWDokx",
     "event": "",

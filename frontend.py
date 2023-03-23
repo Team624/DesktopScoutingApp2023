@@ -155,13 +155,14 @@ def update(index):
             get_average(analyst.get_list_cargo_general("H", "auton")),
             get_average(analyst.get_list_cargo_general("L", "teleop")),
             get_average(analyst.get_list_cargo_general("M", "teleop")),
-            get_average(analyst.get_list_cargo_general("H", "teleop"))
+            get_average(analyst.get_list_cargo_general("H", "teleop")),
+            get_average(analyst.get_list_cargo_specific_ignore_level("cube", "teleop")),
+            get_average(analyst.get_list_cargo_specific_ignore_level("cone", "teleop")),
         ]
         docked_auton, engaged_auton, total_auton = analyst.format_charge("auton")
         docked_teleop, engaged_teleop, total_teleop= analyst.format_charge("teleop")
         data.append(str(engaged_auton)+"-"+str(docked_auton)+"-"+str(total_auton-docked_auton-engaged_auton))
         data.append(str(engaged_teleop)+"-"+str(docked_teleop)+"-"+str(total_teleop-docked_teleop-engaged_teleop))
-        data.append(round(get_average(analyst.get_mobility_progression()), 2))
     else:
         data = ["NONE"]*var_nums
     for i in range(0, var_nums):

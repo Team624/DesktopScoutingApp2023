@@ -80,13 +80,17 @@ class analytics:
                 }
             )
         return output
-    
-    def get_point_average(self, period):
+
+    def get_point_progression_list(self, period):
         progression = self.get_point_progression()
         output = []
         for item in progression:
             output.append(item[period])
-        return round(sum(output)/len(output),2)
+        return output
+    
+    def get_point_average(self, period):
+        progression = self.get_point_progression_list(period)
+        return round(sum(progression)/len(progression),2)
     
     def get_efficiency_progression(self):
         ratios = []

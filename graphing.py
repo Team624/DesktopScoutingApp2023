@@ -6,7 +6,7 @@ from utils import *
 import PIL.Image
 import base64
 
-def radar(json_data, categories):
+def radar_helper(json_data, categories):
     fig = go.Figure()
     for team in json_data.keys():
         fig.add_trace(go.Scatterpolar(
@@ -29,7 +29,7 @@ def radar(json_data, categories):
     img = PIL.Image.open(BytesIO(base64.b64decode(encoding)))
     return img
 
-def getAutonGrid(data):
+def getGridDiagram(data):
     fig = go.Figure()
     fig.add_layout_image(
         dict(
@@ -103,7 +103,7 @@ def getAutonGrid(data):
     encoding = b64encode(img_bytes).decode()
     return encoding
 
-def get_graph(teams):
+def get_radar(teams):
     output={}
     categories = [
         "Auton Low",
@@ -120,5 +120,5 @@ def get_graph(teams):
             for level in ["L", "M", "H"]:
                 data.append(get_average(analyzer.get_list_cargo_general(level, period)))
         output[team] = data
-    return radar(output, categories)
+    return radar_helper(output, categories)
 

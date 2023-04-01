@@ -1,8 +1,10 @@
 import sqlite3
 from basic import getCreateStatement, getVariables
-from scouts import add_scout
+import os
+import json
 
 database = "data.db"
+scouts_database = "scouts.json"
 comma_num=len(getVariables())-1
 
 def connect():
@@ -104,4 +106,19 @@ def allTeams():
             teams.append(team)
     return teams
 
+def create_scouts_db():
+    if not os.path.isfile(scouts_database):
+        with open(scouts_database, "w") as f:
+            json.dump({}, f)
+
+def add_scout(name, match, team):
+    with open(scouts_database, 'r') as f:
+        data = json.load(f)
+    if match not in data.keys():
+        data[match]={}
+    data[match][team]=name
+    with open(scouts_database, "w") as f:
+        json.dump(data, f)
+
 connect()
+create_scouts_db()

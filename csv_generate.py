@@ -4,16 +4,15 @@ import json
 import backend
 import openpyxl
 from utils import *
-from backend import allTeams
 from analyst import analytics
 from openpyxl.styles import PatternFill
-from html_editor import generate_html_loop
+from openpyxl.drawing.image import Image
 
 config_file = json.load(open('assets/config.json'))
 colors = config_file["colors"]
 
 def contribution_csv(color=True):
-    teams = allTeams()
+    teams = backend.allTeams()
     csv_list = []
     header = [
             "Team",
@@ -31,6 +30,7 @@ def contribution_csv(color=True):
             "High Cubes Teleop",
             "Cones Teleop",
             "Cubes Teleop",
+            "Pieces Teleop",
             "Auton Dock %",
             "Auton Engage %",
             "Teleop Dock %",
@@ -60,6 +60,7 @@ def contribution_csv(color=True):
             get_average(analyst.get_list_cargo_specific("H", "teleop", "cube")),
             get_average(analyst.get_list_cargo_specific_ignore_level("cone", "teleop")), 
             get_average(analyst.get_list_cargo_specific_ignore_level("cube", "teleop")), 
+            get_average(analyst.get_piece_progression()),
             round(docked_auto/len_auton, 2),
             round(engaged_auto/len_auton, 2),
             round(docked_teleop/len_teleop, 2),
@@ -94,12 +95,27 @@ def colorCode(filename):
             cell.fill = PatternFill(fgColor=color, bgColor=color, fill_type='solid')
     doc.save(filename+".xlsx")
 
-def generate_auton(team):
-    data = backend.search(team)
-    generate_html_loop(data)
-
-def get_all_autons():
+def fill_sheet(sheet, data, start_row, start_column):
+    for row in range(0, len(data)):
+        for column in range(0, len(data[0])):
+            sheet.cell(row=row+start_row, column=column+start_column, value=data[row][column])
+            
+def generate_team_by_team():
+    workbook = openpyxl.Workbook()
     for team in backend.allTeams():
-        generate_auton(team)
-        
-contribution_csv()
+        worksheet = workbook.create_sheet(title=team)
+        analytic = analytics(team)
+        progression = analytic.csv_progression()
+        fill_sheet(worksheet, progression, 1, 1)
+        starting_index = len(progression)+2
+        try:
+            img = Image(team+'.jpg')
+            column_width = 300
+            img.height = img.height*(column_width/img.width)
+            img.width = column_width
+            worksheet.add_image(img, "A"+str(starting_index))
+        except:
+            print("No image for", team)
+        fill_sheet(worksheet, analytic.get_csv_summary(), starting_index, 7)
+    workbook.remove(workbook['Sheet'])
+    workbook.save('progressions.xlsx')

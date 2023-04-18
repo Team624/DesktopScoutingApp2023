@@ -78,10 +78,11 @@ def parse(csv_line):
     team = data[2]
     if unique(team, match):
         add_scout(initials, match, team)
-        part1 = convert_base(data[7], 5, 9)
-        part2 = convert_base(data[8], 3, 27)
-        part3 = convert_base(data[9], 2, 18)
-        output = data[1:7]+part1+part2+part3+data[10:]
+        part1 = convert_base(data[7], 8, 9)
+        part2 = convert_base(data[8], 4, 18)
+        part3 = convert_base(data[9], 6, 9)
+        part4 = convert_base(data[10], 3, 18)
+        output = data[1:7]+part1+part2+part3+part4+data[11:]
         return [int(i) for i in output]
     else:
         return []
@@ -98,13 +99,11 @@ def add2db(csv_line):
     return False, []
 
 def allTeams():
-    teams=[]
-    lists = view()
-    for lists in lists:
-        team = str(lists[1])
-        if team not in teams:
-            teams.append(team)
-    return teams
+    conn=sqlite3.connect(database)
+    cur=conn.cursor()
+    teams = cur.execute("SELECT DISTINCT team FROM performance").fetchall()
+    teams = [str(item[0]) for item in teams]
+    return sorted(teams, key=lambda x:int(x))
 
 def create_scouts_db():
     if not os.path.isfile(scouts_database):

@@ -1,8 +1,9 @@
-from bs4 import BeautifulSoup
-import base64
-from graphing import getGridDiagram
 import os 
+import base64
+import backend
 from basic import Match
+from bs4 import BeautifulSoup
+from utils import getGridDiagram
 
 html_template = """<html>
 <head>
@@ -25,7 +26,7 @@ def add_image(match_object, period):
     with open(period+"/"+team+".html", "r") as f:
         contents = f.read()
         soup = BeautifulSoup(contents, "html.parser")
-    new_graph = getGridDiagram(match_object.get_map()[period])
+    new_graph = getGridDiagram(match_object.get_map()[period], period)
     soup.body.append(soup.new_tag("br"))
     text = soup.new_tag("h1")
     text.string=str(match_object.match)
@@ -39,11 +40,13 @@ def create_empty(team, period):
     directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), period)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    f = open(period+"/"+team+'.html', 'w')
-    f.write(html_template.replace("TEAM NUMBER", team))
+    f = open(period+"/"+team+".html", 'w')
+    f.write(html_template.replace("TEAM NUMBER", period.capitalize()+" "+team))
     f.close()
 
-def generate_html_loop(data):
-    for match_list in data:
-        add_image(Match(match_list), "auton")
-        add_image(Match(match_list), "teleop")
+def generate_html_loop():
+    for team in backend.allTeams():
+        for match_list in backend.search(team):
+            add_image(Match(match_list), "auton")
+            add_image(Match(match_list), "teleop")
+generate_html_loop()

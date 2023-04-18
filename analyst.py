@@ -1,6 +1,5 @@
 import backend
 from basic import Match
-from utils import save
 
 class analytics:
 
@@ -27,7 +26,7 @@ class analytics:
             progression.append(count)
         return progression
     
-    def get_list_cargo_specific_ignore_level(self, cargo, period):
+    def get_list_cargo_specific_ignore_level(self, cargo, period="teleop"):
         progression = []
         for match in self.data:
             count = 0
@@ -92,39 +91,49 @@ class analytics:
         progression = self.get_point_progression_list(period)
         return round(sum(progression)/len(progression),2)
     
-    def get_efficiency_progression(self):
-        ratios = []
-        for match in self.data:
-            cargo = match.teleop_raw_count()
-            fumbles = match.fumbles
-            if cargo+fumbles==0:
-                ratios.append(0)
-            else:
-                ratios.append(cargo/(cargo+fumbles))
-        return ratios
-    
     def get_mobility_progression(self):
         progression = []
         for match in self.data:
             progression.append(match.move)
         return progression
+
+    def get_piece_progression(self):
+        progression = []
+        for match in self.data:
+            progression.append(match.teleop_raw_count())
+        return progression
+
+    def get_csv_summary(self):
+        cones = sum(self.get_list_cargo_specific_ignore_level("cone"))
+        cubes = sum(self.get_list_cargo_specific_ignore_level("cube"))
+        total = cones+cubes
+        auton_docked, auton_engaged, auton_total = self.format_charge("auton")
+        auton_none = auton_total-auton_docked-auton_engaged
+        teleop_docked, teleop_engaged, teleop_total = self.format_charge("teleop")
+        teleop_none = teleop_total-teleop_docked-teleop_engaged
+        return [
+            ["Piece", "Count", "Percentage", "", "", "Auton", "Teleop"],
+            ["Cones", cones, self.percent_calculator(cones, total), "", "Docked", auton_docked, teleop_docked],
+            ["Cubes", cubes, self.percent_calculator(cubes, total), "", "Engaged", auton_engaged, teleop_engaged],
+            ["Total", total, 100, "", "Other", auton_none, teleop_none]
+        ]
     
     def csv_progression(self):
         output = [
             [
-                "Match Number",
+                "Match",
                 "Auton Low",
                 "Auton Mid",
                 "Auton High",
                 "Auton Charge",
-                "Auton Mobility",
-                "Pieces in Auton",
-                "Points in Auton",
+                "Mobility",
+                "Auton Pieces",
+                "Auton Points",
                 "Teleop Low",
                 "Teleop Mid", 
                 "Teleop High",
-                "Pieces in Teleop",
-                "Points in Teleop",
+                "Teleop Pieces",
+                "Teleop Points",
                 "Endgame Points",
                 "Total"
             ]
@@ -149,4 +158,10 @@ class analytics:
                     match.get_total_points()
                 ]
             )
-        save(output, self.teamNumber, "progression")
+        return output
+    
+    def percent_calculator(self, numerator, denominator, round_digits=1):
+        try:
+            return round(100*numerator/denominator, round_digits)
+        except:
+            return 0

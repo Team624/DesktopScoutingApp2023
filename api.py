@@ -4,6 +4,7 @@ from scipy.linalg import solve
 import json 
 from utils import save
 import pandas as pd
+import os
 import backend
 from basic import Match
 import concurrent.futures
@@ -40,12 +41,10 @@ class TBA:
         scores_matrix = []
         teams_matrix = []
         for match in comp_data:
-            if match['comp_level']=='qm':
+            if match['comp_level']=='qm' and match['actual_time']!=None:
                 colors =['red', 'blue']
                 for color in colors:
                     alliance_data =  match["score_breakdown"][color]
-                    if alliance_data["totalPoints"]==-1:
-                        break
                     scores_matrix.append(alliance_data["linkPoints"]/5)
                     teams_matrix.append(self.get_row(match, teams, color))
         teams_matrix = np.array(teams_matrix) 
@@ -61,10 +60,10 @@ class TBA:
         return row
 
     def get_oprs_dict(self):
-        opr_data = self.OPR_links()
+        opr_data = self.get_links()
         final_data={}
         for [team, opr] in opr_data:
-            final_data[team]=opr
+            final_data[team]=round(opr,2)
         return final_data
     
     def get_grid(self, match_object, teleop=True):
@@ -223,3 +222,20 @@ class TBA:
                         table[team] = table[team]+rps[color]
         table = dict(sorted(table.items(), key=lambda item: item[1], reverse=True))
         self.dump_json(table, "table")
+    
+    def sort_pictures(self):
+        df = pd.read_csv("pit.csv")
+        df = df.values.tolist()[1:]
+        directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pictures')
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        for row in df:
+            team = str(row[1])
+            link = row[-1]
+            try:
+                file_id = link[link.index("=")+1:]
+                response = requests.get(f'https://drive.google.com/uc?id={file_id}&export=download')
+                with open('pictures/'+team+'.jpg', 'wb') as f:
+                    f.write(response.content)
+            except:
+                print("FAILED TO DOWNLOAD", team)

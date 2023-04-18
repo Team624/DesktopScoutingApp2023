@@ -8,8 +8,6 @@ from analyst import analytics
 import json
 import webbrowser
 import os
-from html_editor import generate_html_loop
-import threading
 from tkinter import ttk
 
 config_file = json.load(open('assets/config.json'))
@@ -32,7 +30,7 @@ def decoder(image):
         (x,y,_,_) = obj.rect
         pts = np.array(points, np.int32)
         pts = pts.reshape((-1, 1, 2))
-        image = cv2.polylines(image, [pts], True, (0, 255, 0), 3)
+        image = cv2.polylines(image, [pts], True, (255, 0, 0), 3)
         barcodeData = obj.data.decode("utf-8")
         if barcodeData.count("\n")>0:
             barcodeData = barcodeData.split("\n")[0:-1]
@@ -48,8 +46,6 @@ def decoder(image):
                 if len(barcodeData)==1:
                     cv2.putText(image, "Error 404", (x,y), cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0), 2)
         cv2.putText(image, "Added to DB", (x,y), cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0), 2)
-        thread = threading.Thread(target=generate_html_loop, args=(html_additions,))
-        thread.start()
 
 def scan():
     while True:
@@ -69,7 +65,7 @@ def switch():
 
 def open_link():
     team = dataCounterEntry.get()
-    location = os.path.join(os.path.dirname(os.path.abspath(__file__)), "auton", team+".html")
+    location = os.path.join(os.path.dirname(os.path.abspath(__file__)), "teleop", team+".html")
     if os.path.exists(location):
         webbrowser.open(location,new=1)
 

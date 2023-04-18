@@ -85,37 +85,29 @@ class Match:
         self.triple_balance = data[63]
         self.disconnect = data[64]
     
-    def weight(self, variable, point_value):
-        return variable*point_value
-    
     def auton_cargo(self):
-        map = self.get_map()["auton"]
-        L, M, H = map["L"], map["M"], map["H"]
-        return (L.count(1)+L.count(2))*3+M.count(1)*4+H.count(1)*6
+        L = self.get_cargo_general("auton","L")*3
+        M = self.get_cargo_general("auton","M")*4
+        H = self.get_cargo_general("auton","H")*6
+        return L+M+H
     
     def teleop_cargo(self):
-        map = self.get_map()["teleop"]
-        L, M, H = map["L"], map["M"], map["H"]
-        return (L.count(1)+L.count(2))*2+M.count(1)*3+H.count(1)*5
+        L = self.get_cargo_general("teleop","L")*2
+        M = self.get_cargo_general("teleop","M")*3
+        H = self.get_cargo_general("teleop","H")*5
+        return L+M+H
     
     def teleop_raw_count(self):
-        map = self.get_map()["teleop"]
-        L = map["L"].count(1)+map["L"].count(2)
-        M = map["M"].count(1)
-        H = map["H"].count(1)
+        L = self.get_cargo_general("teleop","L")
+        M = self.get_cargo_general("teleop","M")
+        H = self.get_cargo_general("teleop","H")
         return L+M+H
     
     def auton_raw_count(self):
-        map = self.get_map()["auton"]
-        L = map["L"].count(1)+map["L"].count(2)
-        M = map["M"].count(1)
-        H = map["H"].count(1)
+        L = self.get_cargo_general("auton","L")
+        M = self.get_cargo_general("auton","M")
+        H = self.get_cargo_general("auton","H")
         return L+M+H
-
-    def changing_station_points(self):
-        auton_charge_dist = [0,8,12]
-        teleop_charge_dist = [0, 2, 6, 10]
-        return auton_charge_dist[self.auto_charge], teleop_charge_dist[self.charging_station_endgame]
 
     def auton_charging_station_points(self):
         auton_charge_dist = [0,8,12]
@@ -206,6 +198,7 @@ class Match:
         return data
     
     def get_cargo_specific_count(self, cargo):
+        hybrid_cones_teleop, hybrid_cubes_teleop = self.analyze_hybrid()
         cones = {
             "auton": {
                 "L": [
@@ -237,33 +230,23 @@ class Match:
                 ].count(1)
             },
             "teleop": {
-                "L": [
-                    self.teleop_hybrid_L1,
-                    self.teleop_hybrid_L2,
-                    self.teleop_hybrid_L3,
-                    self.teleop_hybrid_L4,
-                    self.teleop_hybrid_L5,
-                    self.teleop_hybrid_L6,
-                    self.teleop_hybrid_L7,
-                    self.teleop_hybrid_L8,
-                    self.teleop_hybrid_L9
-                ].count(2),
-                "M": [
+                "L": hybrid_cones_teleop,
+                "M": sum([
                     self.teleop_cone_M1,
                     self.teleop_cone_M3,
                     self.teleop_cone_M4,
                     self.teleop_cone_M6,
                     self.teleop_cone_M7,
                     self.teleop_cone_M9
-                ].count(1),
-                "H": [
+                ]),
+                "H": sum([
                     self.teleop_cone_H1,
                     self.teleop_cone_H3,
                     self.teleop_cone_H4,
                     self.teleop_cone_H6,
                     self.teleop_cone_H7,
                     self.teleop_cone_H9
-                ].count(1)
+                ])
             }
         }
         cubes = {
@@ -291,27 +274,17 @@ class Match:
                 ].count(1)
             },
             "teleop": {
-                "L": [
-                    self.teleop_hybrid_L1,
-                    self.teleop_hybrid_L2,
-                    self.teleop_hybrid_L3,
-                    self.teleop_hybrid_L4,
-                    self.teleop_hybrid_L5,
-                    self.teleop_hybrid_L6,
-                    self.teleop_hybrid_L7,
-                    self.teleop_hybrid_L8,
-                    self.teleop_hybrid_L9
-                ].count(1),
-                "M": [
+                "L": hybrid_cubes_teleop,
+                "M": sum([
                     self.teleop_cube_M2,
                     self.teleop_cube_M5,
                     self.teleop_cube_M8
-                ].count(1),
-                "H": [
+                ]),
+                "H": sum([
                     self.teleop_cube_H2,
                     self.teleop_cube_H5,
                     self.teleop_cube_H8
-                ].count(1)
+                ])
             }
         }
         if cargo=="cube":
@@ -322,13 +295,48 @@ class Match:
     def get_cargo_general(self, period, level):
         cubes = self.get_cargo_specific_count("cube")[period][level]
         cones = self.get_cargo_specific_count("cone")[period][level]
-        return cubes + cones
+        return cubes+cones
+
+    def get_cargo_specific_total(self, period, piece):
+        total = 0
+        for level in ['L', 'M', 'H']:
+            total+=self.get_cargo_specific_count(piece)[period][level]
+        return total
 
     def get_auton_points(self):
-        auton_charge, _ = self.changing_station_points()
+        auton_charge = self.auton_charging_station_points()
         mobility = self.mobility_points()
         cargo = self.auton_cargo()
         return cargo+mobility+auton_charge
 
     def get_total_points(self):
         return self.get_auton_points()+self.teleop_cargo()+self.endgame_charging_station_points()
+    
+    def analyze_hybrid(self):
+        hybrid = [
+            self.teleop_hybrid_L1,
+            self.teleop_hybrid_L2,
+            self.teleop_hybrid_L3,
+            self.teleop_hybrid_L4,
+            self.teleop_hybrid_L5,
+            self.teleop_hybrid_L6,
+            self.teleop_hybrid_L7,
+            self.teleop_hybrid_L8,
+            self.teleop_hybrid_L9
+        ]
+        cubes, cones = 0, 0
+        #codes follows the following format
+        # values: [cubes, cubes]
+        codes = {
+            0:[0,0],
+            1:[1,0],
+            2:[0,1],
+            3:[2,0],
+            4:[0,2],
+            5:[1,1]
+        }
+        for piece in hybrid:
+            cubes_increment, cone_increment = codes[piece]
+            cones+=cone_increment
+            cubes+=cubes_increment
+        return cones, cubes

@@ -88,9 +88,9 @@
         "auton_charge",
         "endgame_charge"
     ],
-    "tba-key":"9yCEygpvVeVwzxOMQ8Hv3KISU1B112iQejqFNVUMdtPwtMwsxoTYg89UH7iWDokx",
-    "event": "2023arc",
+    "tba-key":"",
+    "event": "",
     "rp1_threshold":0,
     "rp2_threshold":0,
-    "qual_number":10
+    "qual_number":0
 }

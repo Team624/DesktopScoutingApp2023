@@ -223,7 +223,7 @@ class TBA:
         table = dict(sorted(table.items(), key=lambda item: item[1], reverse=True))
         self.dump_json(table, "table")
     
-    def sort_pictures(self):
+    def download_pictures(self):
         df = pd.read_csv("pit.csv")
         df = df.values.tolist()[1:]
         directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pictures')
@@ -235,7 +235,7 @@ class TBA:
             try:
                 file_id = link[link.index("=")+1:]
                 response = requests.get(f'https://drive.google.com/uc?id={file_id}&export=download')
-                with open('pictures/'+team+'.jpg', 'wb') as f:
+                with open('pictures/'+team+'.jpeg', 'wb') as f:
                     f.write(response.content)
             except:
                 print("FAILED TO DOWNLOAD", team)

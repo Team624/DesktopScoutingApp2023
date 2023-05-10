@@ -3,10 +3,12 @@ import math
 import json 
 import backend
 import openpyxl
+import xlsxwriter
 from utils import *
 from analyst import analytics
 from openpyxl.styles import PatternFill
-from openpyxl.drawing.image import Image
+from PIL import Image,  ExifTags
+from io import BytesIO
 
 config_file = json.load(open('assets/config.json'))
 colors = config_file["colors"]
@@ -98,24 +100,42 @@ def colorCode(filename):
 def fill_sheet(sheet, data, start_row, start_column):
     for row in range(0, len(data)):
         for column in range(0, len(data[0])):
-            sheet.cell(row=row+start_row, column=column+start_column, value=data[row][column])
+            sheet.write(row+start_row, column+start_column, data[row][column])
             
 def generate_team_by_team():
-    workbook = openpyxl.Workbook()
+    workbook = xlsxwriter.Workbook('team_by_team.xlsx')
     for team in backend.allTeams():
-        worksheet = workbook.create_sheet(title=team)
+        worksheet = workbook.add_worksheet(name=team)
         analytic = analytics(team)
         progression = analytic.csv_progression()
-        fill_sheet(worksheet, progression, 1, 1)
+        fill_sheet(worksheet, progression, 0, 0)
         starting_index = len(progression)+2
+        fill_sheet(worksheet, analytic.get_csv_summary(), starting_index, 6)
         try:
-            img = Image(team+'.jpg')
-            column_width = 300
-            img.height = img.height*(column_width/img.width)
-            img.width = column_width
-            worksheet.add_image(img, "A"+str(starting_index))
+            image_path = 'pictures/'+team+'.jpeg'
+            image = Image.open(image_path)
+            try:
+                for orientation in ExifTags.TAGS.keys():
+                    if ExifTags.TAGS[orientation]=='Orientation':
+                        break
+                exif=dict(image._getexif().items())
+                if exif[orientation] == 3:
+                    image=image.rotate(180, expand=True)
+                elif exif[orientation] == 6:
+                    image=image.rotate(270, expand=True)
+                elif exif[orientation] == 8:
+                    image=image.rotate(90, expand=True)
+            except (AttributeError, KeyError, IndexError):
+                pass
+            aspect_ratio = float(image.size[1]) / float(image.size[0])
+            resized_image = image.resize((300, int(300 * aspect_ratio)))
+            image_buffer = BytesIO()
+            resized_image.save(image_buffer, format='JPEG')
+            worksheet.insert_image('A'+str(starting_index), '', {'image_data': image_buffer})
         except:
-            print("No image for", team)
-        fill_sheet(worksheet, analytic.get_csv_summary(), starting_index, 7)
-    workbook.remove(workbook['Sheet'])
-    workbook.save('progressions.xlsx')
+            print("NO IMAGE FOR", team)
+    workbook.close()
+
+def create_spreadsheets():
+    contribution_csv()
+    generate_team_by_team()

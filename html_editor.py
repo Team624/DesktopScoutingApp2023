@@ -5,9 +5,16 @@ from basic import Match
 from bs4 import BeautifulSoup
 from utils import getGridDiagram
 
-html_template = """<html>
+html_template = """<!DOCTYPE html>
+<html>
 <head>
 <title>TEAM NUMBER</title>
+<style>
+img {
+width: 600px;
+height: 200px;
+}
+</style>
 </head>
 <body>
 </body>
@@ -46,7 +53,10 @@ def create_empty(team, period):
 
 def generate_html_loop():
     for team in backend.allTeams():
-        for match_list in backend.search(team):
+        generate_html_team(team)
+
+def generate_html_team(team, skip_auton=False):
+    for match_list in backend.search(team):
+        add_image(Match(match_list), "teleop")
+        if not skip_auton:
             add_image(Match(match_list), "auton")
-            add_image(Match(match_list), "teleop")
-generate_html_loop()

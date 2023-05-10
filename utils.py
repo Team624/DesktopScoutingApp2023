@@ -137,8 +137,8 @@ def getGridDiagram(data, period):
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=False),
         margin=dict(l=0, r=0, t=0, b=0),
-        width = 750,
-        height = 250
+        width = 600,
+        height = 200
     )   
     fig.update_yaxes(
         range=[0,3],

@@ -13,14 +13,17 @@ options = [
     {'label': 'Auton', 'value': 'auton'},
     {'label': 'Teleop', 'value': 'teleop'},
     {'label': 'Endgame', 'value': 'endgame'},
-    {'label': 'Total', 'value':'total'}
+    {'label': 'Cones', 'value':'cones'},
+    {'label': 'Cubes', 'value':'cubes'},
+    {'label': 'Pieces', 'value':'pieces'},
+    {'label': 'Total', 'value':'total'},
 ]
 
-def get_df(period):
+def get_df(category):
     df = {}
     teams = backend.allTeams()
     for team in teams:
-        team_data = analytics(team).get_point_progression_list(period)
+        team_data = analytics(team).get_point_progression_list(category)
         df[team] = team_data + [float('nan')] * (qual_number-len(team_data))
     df = dict(sorted(df.items()))
     df['x'] = range(1, qual_number+1)
@@ -63,12 +66,12 @@ app.layout = html.Div([
         multi=True
     ),
     dcc.Dropdown(
-        id='period-dropdown',
+        id='category-dropdown',
         options=options,
         value='total',
         style={
-            'width': '150px', 
-            'font-size': '20px'
+            'width': '100px', 
+            'font-size': '15px'
         }
     ),
     dcc.Graph(
@@ -80,7 +83,7 @@ app.layout = html.Div([
 @app.callback(
     dash.dependencies.Output('graph', 'figure'),
     [dash.dependencies.Input('team-selector', 'value'),
-     dash.dependencies.Input('period-dropdown', 'value')])
+     dash.dependencies.Input('category-dropdown', 'value')])
 def update_output(selected_columns, value):
     global df
     df = get_df(value)

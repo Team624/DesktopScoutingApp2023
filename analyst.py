@@ -29,10 +29,7 @@ class analytics:
     def get_list_cargo_specific_ignore_level(self, cargo, period="teleop"):
         progression = []
         for match in self.data:
-            count = 0
-            for level in ["L", "M", "H"]:
-                count += match.get_cargo_specific_count(cargo)[period][level]
-            progression.append(count)
+            progression.append(match.get_cargo_specific_total(period, cargo))
         return progression
     
     def get_charging_station(self):
@@ -75,6 +72,10 @@ class analytics:
                     "auton": match.get_auton_points(),
                     "teleop": match.teleop_cargo(),
                     "endgame": match.endgame_charging_station_points(),
+                    "pieces": match.teleop_raw_count(),
+                    "cubes": match.get_cargo_specific_total("teleop", "cube"),
+                    "cones": match.get_cargo_specific_total("teleop", "cone"),
+                    "pieces": match.teleop_raw_count(),
                     "total": match.get_total_points()
                 }
             )
@@ -101,6 +102,12 @@ class analytics:
         progression = []
         for match in self.data:
             progression.append(match.teleop_raw_count())
+        return progression
+
+    def get_piece_progression_auton(self):
+        progression = []
+        for match in self.data:
+            progression.append(match.auton_raw_count())
         return progression
 
     def get_csv_summary(self):

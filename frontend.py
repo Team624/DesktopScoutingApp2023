@@ -9,6 +9,7 @@ import json
 import webbrowser
 import os
 from tkinter import ttk
+import html_editor
 
 config_file = json.load(open('assets/config.json'))
 types = config_file["types"]
@@ -67,7 +68,9 @@ def open_link():
     team = dataCounterEntry.get()
     location = os.path.join(os.path.dirname(os.path.abspath(__file__)), "teleop", team+".html")
     if os.path.exists(location):
-        webbrowser.open(location,new=1)
+        os.remove(location)
+    html_editor.generate_html_team(team, skip_auton=True)
+    webbrowser.open(location,new=1)
 
 cvButton=ttk.Button(window, text="Scan", width=14, command=scan)
 cvButton.grid(row=0, column=0)
@@ -75,7 +78,7 @@ switchCamera=ttk.Button(window, text="Switch Camera", width=14, command=switch)
 switchCamera.grid(row=1, column=0)
 dataCounterEntry=Entry(window, textvariable=counterController, width=12)
 dataCounterEntry.grid(row=0, column=6)
-CounterButton=ttk.Button(window, text="Auton", width=12, command=open_link)
+CounterButton=ttk.Button(window, text="Map", width=12, command=open_link)
 CounterButton.grid(row=1, column=6)
 
 teamController1 = StringVar()

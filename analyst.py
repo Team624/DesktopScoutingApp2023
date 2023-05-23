@@ -50,19 +50,6 @@ class analytics:
             docked =endgame.count(2)
             engaged = endgame.count(3)
             return docked, engaged, len(endgame)
- 
-    def triple_success_rate(self):
-        _, endgame, triple = self.get_charging_station()
-        engaged, attempted = 0, 0
-        for i in range(0, len(triple)):
-            if triple[i]==1:
-                attempted+=1
-                if endgame[i]==3:
-                    engaged+=1
-        if attempted==0:
-            return 0
-        else:
-            return engaged/attempted
     
     def get_point_progression(self):
         output = []

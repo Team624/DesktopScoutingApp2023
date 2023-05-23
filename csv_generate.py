@@ -9,6 +9,7 @@ from analyst import analytics
 from openpyxl.styles import PatternFill
 from PIL import Image,  ExifTags
 from io import BytesIO
+from api import TBA
 
 config_file = json.load(open('assets/config.json'))
 colors = config_file["colors"]
@@ -104,6 +105,7 @@ def fill_sheet(sheet, data, start_row, start_column):
             
 def generate_team_by_team():
     workbook = xlsxwriter.Workbook('team_by_team.xlsx')
+    TBA().download_pictures()
     for team in backend.allTeams():
         worksheet = workbook.add_worksheet(name=team)
         analytic = analytics(team)

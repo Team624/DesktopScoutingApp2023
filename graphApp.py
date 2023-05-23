@@ -89,5 +89,8 @@ def update_output(selected_columns, value):
     df = get_df(value)
     return update_graph(fig, df[selected_columns + ['x']], selected_columns)
 
-if __name__ == '__main__':
+def run_graph_app():
     app.run_server()
+
+if __name__ == '__main__':
+    run_graph_app

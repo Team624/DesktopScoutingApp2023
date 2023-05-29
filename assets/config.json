@@ -1,4 +1,7 @@
 {
+    "tba-key":"",
+    "event": "",
+    "qual_number":0,
     "variables": [
         "match",
         "team",
@@ -87,10 +90,5 @@
         "Cones",
         "auton_charge",
         "endgame_charge"
-    ],
-    "tba-key":"",
-    "event": "",
-    "rp1_threshold":0,
-    "rp2_threshold":0,
-    "qual_number":0
+    ]
 }

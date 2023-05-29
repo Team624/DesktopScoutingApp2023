@@ -8,7 +8,6 @@ import os
 import backend
 from basic import Match
 import concurrent.futures
-import statbotics
 
 config = json.load(open('assets/config.json'))
 class TBA:
@@ -16,11 +15,6 @@ class TBA:
     def __init__(self):
         self.event = config["event"]
         self.key = {'X-TBA-Auth-Key': config["tba-key"]}
-        self.sb = statbotics.Statbotics()
-        self.rp_threshold = {
-            "1":config["rp1_threshold"],
-            "2":config["rp2_threshold"]
-        }
     
     def get_comp_data(self):
         link = "https://www.thebluealliance.com/api/v3/event/"+self.event+"/matches"
@@ -188,41 +182,7 @@ class TBA:
         accuracy = sorted(accuracy, key=lambda x:x[0])
         accuracy.insert(0, header)
         save(accuracy, "accuracy")
-    
-    def get_prediction(self, match_key):
-        prediction = self.sb.get_match(match=match_key)
-        output = {
-            "red":0,
-            "blue":0
-        }
-        output[prediction['winner']] = 2
-        for color in ["red", "blue"]:
-            for rp in ["1","2"]:
-                if prediction[color+"_rp_"+rp+"_prob"]>self.rp_threshold[rp]:
-                    output[color] = output[color]+1
-        return output
 
-    def predict_table(self):
-        matches = self.get_comp_data()
-        table = {}
-        for match in matches:
-            if match['comp_level']=='qm':
-                if match["winning_alliance"]!="":
-                    rps = {
-                        "red":match["score_breakdown"]["red"]["rp"],
-                        "blue":match["score_breakdown"]["blue"]["rp"]
-                    }
-                else:
-                    rps = self.get_prediction(match["key"])
-                for color in ["red", "blue"]:
-                    for team in match["alliances"][color]["team_keys"]:
-                        team = team[3:]
-                        if team not in table.keys():
-                            table[team]=0
-                        table[team] = table[team]+rps[color]
-        table = dict(sorted(table.items(), key=lambda item: item[1], reverse=True))
-        self.dump_json(table, "table")
-    
     def download_pictures(self):
         df = pd.read_csv("pit.csv")
         df = df.values.tolist()[1:]

@@ -8,6 +8,8 @@ To run the app, follow these steps:
 2. Execute `main.py`.
 3. A window will pop up, displaying several buttons.
 
+![Scouting App View](assets/display.png)
+
 #### Scan
 
 Click the "Scan" button to scan new QR codes. The window will show a message informing you about the status of the most recent QR code you've scanned and the total number of QR codes in the database.
@@ -59,7 +61,12 @@ To use any of these functions, call `TBA().[function name]()` in any other file.
 
 ### Other Notes
 
-Before using the app, please complete the following steps in the `config.json` file:
+In `config.json`, enter values for the following fields:
 
-1. Fill in any blank spaces, such as the TBA key, number of quals, etc.
-2. Use the `scouts.json` file to keep track of who scouted each match.
+```json
+"tba-key": "",
+"event": "",
+"qual_number": 0
+```
+
+The app will automatically generate `data.db` and `scouts.json`. The first file will store all the data about matches, and the second file will keep track of who scouted each match.

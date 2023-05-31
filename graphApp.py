@@ -93,4 +93,4 @@ def run_graph_app():
     app.run_server()
 
 if __name__ == '__main__':
-    run_graph_app
+    run_graph_app()
